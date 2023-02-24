@@ -40,28 +40,37 @@ class TestClass:
     def a_property(self):
         return self.a_method()
 
-# This is your test case for TestClass
-
-
 class TestMemoize(unittest.TestCase):
-    class TestClass:
 
-        def a_method(self):
-            return 42
-
-        @memoize
-        def a_property(self):
-            return self.a_method()
-
-    # Use patch to mock out a_method
-    @mock.patch('TestClass.a_method')
+    @patch.object(TestClass, 'a_method', return_value=42)
     def test_memoize(self, mock_a_method):
-        # Set the return value of the mock to 42
-        mock_a_method.return_value = 42
-        # Create an instance of TestClass
-        test_class = TestClass()
-        # Call a_property twice and assert that it returns 42 both times
-        self.assertEqual(test_class.a_property(), 42)
-        self.assertEqual(test_class.a_property(), 42)
-        # Assert that a_method was called only once
+        # create an instance of TestClass
+        test_obj = TestClass()
+        # call a_property twice
+        result1 = test_obj.a_property
+        result2 = test_obj.a_property
+        # assert that the correct result is returned
+        self.assertEqual(result1, 42)
+        self.assertEqual(result2, 42)
+        # assert that a_method is only called once
         mock_a_method.assert_called_once()
+
+class TestGetJson(unittest.TestCase):
+
+    @parameterized.expand([
+        ("http://example.com", {"payload": True}),
+        ("http://holberton.io", {"payload": False})
+    ])
+    @patch('requests.get')
+    def test_get_json(self, test_url, test_payload, mock_get):
+        # create a mock response object with a json method that returns test_payload
+        mock_response = unittest.mock.Mock()
+        mock_response.json.return_value = test_payload
+        # set the return value of requests.get to mock_response
+        mock_get.return_value = mock_response
+        # call get_json with test_url
+        result = get_json(test_url)
+        # assert that requests.get is called once with test_url as argument
+        mock_get.assert_called_once_with(test_url)
+        # assert that result is equal to test_payload
+        self.assertEqual(result, test_payload)
