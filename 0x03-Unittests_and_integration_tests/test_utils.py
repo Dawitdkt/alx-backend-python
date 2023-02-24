@@ -40,6 +40,7 @@ class TestClass:
     def a_property(self):
         return self.a_method()
 
+
 class TestMemoize(unittest.TestCase):
 
     @patch.object(TestClass, 'a_method', return_value=42)
@@ -54,6 +55,7 @@ class TestMemoize(unittest.TestCase):
         self.assertEqual(result2, 42)
         # assert that a_method is only called once
         mock_a_method.assert_called_once()
+
 
 class TestGetJson(unittest.TestCase):
 
