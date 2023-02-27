@@ -31,30 +31,30 @@ class TestAccessNestedMap(unittest.TestCase):
         self.assertRaises(KeyError, access_nested_map, nested_map, path)
 
 
-class TestClass:
+# class TestClass:
 
-    def a_method(self):
-        return 42
+#     def a_method(self):
+#         return 42
 
-    @memoize
-    def a_property(self):
-        return self.a_method()
+#     @memoize
+#     def a_property(self):
+#         return self.a_method()
 
 
-class TestMemoize(unittest.TestCase):
+# class TestMemoize(unittest.TestCase):
 
-    @patch.object(TestClass, 'a_method', return_value=42)
-    def test_memoize(self, mock_a_method):
-        # create an instance of TestClass
-        test_obj = TestClass()
-        # call a_property twice
-        result1 = test_obj.a_property
-        result2 = test_obj.a_property
-        # assert that the correct result is returned
-        self.assertEqual(result1, 42)
-        self.assertEqual(result2, 42)
-        # assert that a_method is only called once
-        mock_a_method.assert_called_once()
+#     @patch.object(TestClass, 'a_method', return_value=42)
+#     def test_memoize(self, mock_a_method):
+#         # create an instance of TestClass
+#         test_obj = TestClass()
+#         # call a_property twice
+#         result1 = test_obj.a_property
+#         result2 = test_obj.a_property
+#         # assert that the correct result is returned
+#         self.assertEqual(result1, 42)
+#         self.assertEqual(result2, 42)
+#         # assert that a_method is only called once
+#         mock_a_method.assert_called_once()
 
 
 class TestGetJson(unittest.TestCase):
@@ -76,3 +76,36 @@ class TestGetJson(unittest.TestCase):
         mock_get.assert_called_once_with(test_url)
         # assert that result is equal to test_payload
         self.assertEqual(result, test_payload)
+
+
+class TestMemoize(unittest.TestCase):
+
+    def test_memoize(self):
+        # Define a test class with a method and a memoized property
+        class TestClass:
+
+            def a_method(self):
+                return 42
+
+            @memoize
+            def a_property(self):
+                return self.a_method()
+
+        # Create an instance of the test class
+        obj = TestClass()
+
+        # Mock the a_method of the instance
+        with patch.object(obj, 'a_method') as mock_method:
+            # Set the mock method to return 43 instead of 42
+            mock_method.return_value = 43
+
+            # Call the memoized property twice
+            result1 = obj.a_property()
+            result2 = obj.a_property()
+
+            # Assert that the correct result is returned
+            self.assertEqual(result1, 43)
+            self.assertEqual(result2, 43)
+
+            # Assert that the mock method is only called once
+            mock_method.assert_called_once()
