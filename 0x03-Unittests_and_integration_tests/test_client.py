@@ -84,3 +84,26 @@ class TestGithubOrgClient(unittest.TestCase):
 
             # assert that get_json was called once with fake url
             mock_get_json.assert_called_once_with("https://fake.url")
+
+    @parameterized.expand([
+        (
+            {"license": {"key": "my_license"}},
+            "my_license",
+            True
+        ),
+        (
+            {"license": {"key": "other_license"}},
+            "my_license",
+            False
+        )
+    ])
+    def test_has_license(self, repo, license_key, expected_returned_value):
+        """Test has_license method"""
+        # create instance of GithubOrgClient with any org name
+        client = GithubOrgClient("any_org")
+
+        # call has_license method on client instance with repo and license_key
+        result = client.has_license(repo, license_key)
+
+        # assert that result is equal to expected_returned_value
+        self.assertEqual(result, expected_returned_value)
