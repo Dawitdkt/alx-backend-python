@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
+"""
+This module contains the TestGithubOrgClient
+class that tests the GithubOrgClient class.
 
+The TestGithubOrgClient class inherits from
+unittest.TestCase and uses the patch and
+parameterized decorators to mock the get_json
+function and parametrize the test cases.
+
+The test_org method tests that
+GithubOrgClient.org returns the correct
+value for different org names.
+"""
 import unittest
 from unittest.mock import patch, PropertyMock
 from parameterized import parameterized, parameterized_class
@@ -11,6 +23,11 @@ from client import GithubOrgClient
 
 
 class TestGithubOrgClient(unittest.TestCase):
+    """_summary_
+
+    Args:
+        unittest (_type_): _description_
+    """
     @parameterized.expand([
         ("google",),
         ("abc",),
