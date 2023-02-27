@@ -43,16 +43,44 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(client._public_repos_url,
                          "https://api.github.com/orgs/google/repos")
 
-    @patch("client.get_json")
-    def test_public_repos(self, mock_get_json):
-        """Test that GithubOrgClient.public_repos returns the correct value"""
-        mock_get_json.return_value = [{"name": "repo1"}, {"name": "repo2"}]
-        with patch("client.GithubOrgClient._public_repos_url",
-                   new_callable=PropertyMock) as mock_public_url:
-            mock_public_url.return_value =\
-                "https://api.github.com/orgs/google/repos"
-            client = GithubOrgClient("google")
-            self.assertEqual(client.public_repos(), ["repo1", "repo2"])
+    @parameterized.expand([
+        (
+            "google",
+            {"google-repo1", "google-repo2"}
+        ),
+        (
+            "abc",
+            {"abc-repo1", "abc-repo2"}
+        )
+    ])
+    @patch('client.get_json')
+    def test_public_repos(self, org_name, expected_repos, mock_get_json):
+        """Test public repos method"""
+        # create payload for get_json
+        payload = [{"name": repo} for repo in expected_repos]
+
+        # make get_json return payload
+        mock_get_json.return_value = payload
+
+        # create instance of GithubOrgClient
+        client = GithubOrgClient(org_name)
+
+        # use patch as context manager to mock _public_repos_url property
+        with patch.object(GithubOrgClient,
+                          '_public_repos_url',
+                          new_callable=Mock) as mock_public_url:
+
+            # make _public_repos_url return fake url
+            mock_public_url.return_value = "https://fake.url"
+
+            # call public_repos method on client instance
+            repos = client.public_repos()
+
+            # assert that repos is expected set of repo names
+            self.assertEqual(repos, expected_repos)
+
+            # assert that _public_repos_url was called once
             mock_public_url.assert_called_once()
-            mock_get_json.assert_called_once_with(
-                "https://api.github.com/orgs/google/repos")
+
+            # assert that get_json was called once with fake url
+            mock_get_json.assert_called_once_with("https://fake.url")
